@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import '../controles/controle_planeta.dart';
 import '../modelos/planeta.dart';
 
+// Tela para cadastro e edição de um planeta
 class TelaPlaneta extends StatefulWidget {
-  final bool isIncluir;
-  final Planeta planeta;
-  final Function() onFinalizado;
+  final bool isIncluir; // Define se a tela será usada para inclusão ou edição
+  final Planeta planeta; // Objeto Planeta que será manipulado
+  final Function() onFinalizado; // Callback chamado após salvar
 
   const TelaPlaneta({
     super.key,
@@ -20,29 +21,33 @@ class TelaPlaneta extends StatefulWidget {
 }
 
 class _TelaPlanetaState extends State<TelaPlaneta> {
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>(); // Chave global para validação do formulário
 
+  // Controladores para capturar os valores dos campos de entrada
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _tamanhoController = TextEditingController();
   final TextEditingController _distanciaController = TextEditingController();
   final TextEditingController _nomeAlternativoController = TextEditingController();
 
-  final ControlePlaneta _controlePlaneta = ControlePlaneta();
+  final ControlePlaneta _controlePlaneta = ControlePlaneta(); // Controle de operações sobre planetas
 
-  late Planeta _planeta;
+  late Planeta _planeta; // Armazena o planeta atual
 
   @override
   void initState() {
+    super.initState();
     _planeta = widget.planeta;
+
+    // Preenchendo os campos de entrada com os valores atuais do planeta
     _nomeController.text = _planeta.nome;
     _tamanhoController.text = _planeta.tamanho.toString();
     _distanciaController.text = _planeta.distancia.toString();
     _nomeAlternativoController.text = _planeta.nomeAlternativo ?? '';
-    super.initState();
   }
 
   @override
   void dispose() {
+    // Liberando os controladores de texto para evitar vazamento de memória
     _nomeController.dispose();
     _tamanhoController.dispose();
     _distanciaController.dispose();
@@ -50,18 +55,20 @@ class _TelaPlanetaState extends State<TelaPlaneta> {
     super.dispose();
   }
 
+  // Método para inserir um novo planeta no banco de dados
   Future<void> _inserirPlaneta() async {
     await _controlePlaneta.inserirPlaneta(_planeta);
   }
 
+  // Método para alterar os dados de um planeta existente
   Future<void> _alterarPlaneta() async {
     await _controlePlaneta.alterarPlaneta(_planeta);
   }
 
+  // Método chamado ao pressionar o botão de salvar
   void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      // Dados validados com sucesso
-      _formKey.currentState!.save();
+    if (_formKey.currentState!.validate()) { // Valida o formulário
+      _formKey.currentState!.save(); // Salva os valores nos objetos correspondentes
 
       if (widget.isIncluir) {
         _inserirPlaneta();
@@ -69,14 +76,16 @@ class _TelaPlanetaState extends State<TelaPlaneta> {
         _alterarPlaneta();
       }
 
+      // Exibe uma mensagem de sucesso
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
               'Planeta ${widget.isIncluir ? 'criado' : 'atualizado'} com sucesso!'),
         ),
       );
-      Navigator.of(context).pop();
-      widget.onFinalizado();
+
+      Navigator.of(context).pop(); // Fecha a tela atual
+      widget.onFinalizado(); // Chama a função callback
     }
   }
 
@@ -96,6 +105,7 @@ class _TelaPlanetaState extends State<TelaPlaneta> {
           child: SingleChildScrollView(
             child: Column(
               children: [
+                // Campo de entrada para o nome do planeta
                 TextFormField(
                   controller: _nomeController,
                   decoration: const InputDecoration(
@@ -113,6 +123,7 @@ class _TelaPlanetaState extends State<TelaPlaneta> {
                     _planeta.nome = value!;
                   },
                 ),
+                // Campo de entrada para o tamanho do planeta
                 TextFormField(
                   controller: _tamanhoController,
                   decoration: const InputDecoration(labelText: 'Tamanho (km)'),
@@ -131,6 +142,7 @@ class _TelaPlanetaState extends State<TelaPlaneta> {
                     _planeta.tamanho = double.parse(value!);
                   },
                 ),
+                // Campo de entrada para a distância do planeta
                 TextFormField(
                   controller: _distanciaController,
                   decoration: const InputDecoration(labelText: 'Distância (km)'),
@@ -149,6 +161,7 @@ class _TelaPlanetaState extends State<TelaPlaneta> {
                     _planeta.distancia = double.parse(value!);
                   },
                 ),
+                // Campo de entrada para o nome alternativo do planeta
                 TextFormField(
                   controller: _nomeAlternativoController,
                   decoration: const InputDecoration(labelText: 'Nome Alternativo (opcional)'),
@@ -156,9 +169,8 @@ class _TelaPlanetaState extends State<TelaPlaneta> {
                     _planeta.nomeAlternativo = value;
                   },
                 ),
-                const SizedBox(
-                  height: 20.0,
-                ),
+                const SizedBox(height: 20.0),
+                // Botões de ação (Cancelar e Salvar)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
